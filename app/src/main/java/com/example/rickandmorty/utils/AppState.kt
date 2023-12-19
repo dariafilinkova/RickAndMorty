@@ -19,6 +19,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rickandmorty.navigation.BottomBarTab
+import com.example.rickandmorty.navigation.CharactersDestinations.CHARACTER_ITEM_ROUTE
 
 
 @Composable
@@ -88,9 +89,9 @@ class AppState(
         }
     }
 
-    fun navigateToCharacterItemDetail(itemId: Long, from: NavBackStackEntry) {
+    fun navigateToCharacterDetails(characterId: Int, from: NavBackStackEntry) {
         if (from.lifecycleIsResumed()) {
-            //navController.navigate("${CONTACT_ITEM_ROUTE}/$itemId")
+            navController.navigate("${CHARACTER_ITEM_ROUTE}/$characterId")
         }
     }
 }

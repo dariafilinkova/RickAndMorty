@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">RickAndMorty</string>
     <string name="characters">Characters</string>
+    <string name="select_status">Select status</string>
+    <string name="select_gender">Select gender</string>
+    <string name="filter">Filter</string>
+    <string name="clear">Clear</string>
+    <string name="search">Search</string>
+    <string name="episodes">Episodes</string>
+    <string name="location">Location</string>
 </resources>

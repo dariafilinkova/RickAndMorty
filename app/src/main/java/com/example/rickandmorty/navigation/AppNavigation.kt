@@ -43,7 +43,7 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPaddingModifier)
         ) {
             navGraph(
-                onContactItemSelected = appState::navigateToCharacterItemDetail,
+                onCharacterSelected = appState::navigateToCharacterDetails,
                 upPress = appState::upPress,
             )
         }
