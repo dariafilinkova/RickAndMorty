@@ -82,7 +82,7 @@ fun TopAppBarWthScaffold(
                         characters[index]?.let { character ->
                             ItemCharacter(
                                 itemCharacter = character,
-                                onItemClick = { onItemClick(index + 1) }
+                                onItemClick = { onItemClick(character.id) }
                             )
                         }
                     }

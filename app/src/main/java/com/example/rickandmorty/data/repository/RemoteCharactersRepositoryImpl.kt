@@ -9,11 +9,17 @@ import javax.inject.Inject
 class RemoteCharactersRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : IRemoteCharactersRepository {
-    override suspend fun getCharacters(page: Int, name: String?): CharactersDto {
-        return apiService.getCharacters(page, name)
+    override suspend fun getCharacters(
+        page: Int,
+        name: String?,
+        status: String?,
+        gender: String?
+    ): CharactersDto {
+        return apiService.getCharacters(page, name, status, gender)
     }
 
     override suspend fun getCharacterDetails(characterId: Int): CharacterDetailsDto {
         return apiService.getCharacterDetails(characterId)
     }
+
 }

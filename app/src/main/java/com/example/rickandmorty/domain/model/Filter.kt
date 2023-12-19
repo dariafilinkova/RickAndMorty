@@ -5,13 +5,13 @@ data class Filter(
 )
 
 val statusFilters = listOf(
-    Filter(name = "alive"),
-    Filter(name = "dead"),
+    Filter(name = "Alive"),
+    Filter(name = "Dead"),
     Filter(name = "unknown"),
 )
 val genderFilters = listOf(
-    Filter(name = "female"),
-    Filter(name = "male"),
-    Filter(name = "genderless"),
+    Filter(name = "Female"),
+    Filter(name = "Male"),
+    Filter(name = "Genderless"),
     Filter(name = "unknown"),
 )

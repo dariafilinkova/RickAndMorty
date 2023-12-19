@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharactersViewModel @Inject constructor(
-    private val getCharactersUseCase: GetCharactersUseCase
+    private val getCharactersUseCase: GetCharactersUseCase,
 ) : ViewModel() {
     private val _characterListState: MutableState<CharacterListState> = mutableStateOf(
         CharacterListState()
@@ -27,6 +27,7 @@ class CharactersViewModel @Inject constructor(
     }
     val characterListState: State<CharacterListState>
         get() = _characterListState
+
     init {
         getCharacters()
     }
@@ -40,7 +41,11 @@ class CharactersViewModel @Inject constructor(
 
     }
 
-//    fun getCharactersWithFilters() = viewModelScope.launch(handler) {
-//        val response =
-//    }
+    fun getCharactersWithFilters(status: String, gender: String) = viewModelScope.launch(handler) {
+        val response =
+            getCharactersUseCase(status = status, gender = gender).cachedIn(viewModelScope)
+        _characterListState.value = CharacterListState(
+            dataList = response
+        )
+    }
 }

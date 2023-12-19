@@ -16,15 +16,32 @@ import javax.inject.Inject
 class CharactersRepositoryImpl @Inject constructor(
     private val remoteRepository: IRemoteCharactersRepository
 ) : CharactersRepository {
-    override suspend fun getAllCharacters(name: String?): Flow<PagingData<ItemCharacter>> {
+    override suspend fun getAllCharacters(
+        name: String?,
+        status: String?,
+        gender: String?
+    ): Flow<PagingData<ItemCharacter>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            CharactersPagingSource(repository = remoteRepository, name = name)
+            CharactersPagingSource(
+                repository = remoteRepository,
+                name = name,
+                status = status,
+                gender = gender
+            )
         }.flow
     }
+
+//    override suspend fun getCharactersWithFilters(status: String?): Flow<PagingData<ItemCharacter>> {
+//        return Pager(PagingConfig(pageSize = 20)) {
+//            CharactersPagingSource(repository = remoteRepository, status = status)
+//        }.flow
+//    }
 }
 
 class CharactersPagingSource(
     private val name: String? = null,
+    private val status: String? = null,
+    private val gender: String? = null,
     private val repository: IRemoteCharactersRepository
 ) : PagingSource<Int, ItemCharacter>() {
     override fun getRefreshKey(state: PagingState<Int, ItemCharacter>): Int? {
@@ -36,18 +53,12 @@ class CharactersPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ItemCharacter> {
         val pageNumber = params.key ?: 1
         return try {
-            val charactersResponse = repository.getCharacters(pageNumber, name)
+            val charactersResponse = repository.getCharacters(pageNumber, name, status, gender)
             val characters = charactersResponse.results.map { characterDto ->
                 characterDto.toItemCharacter()
             }
             var nextPage: Int? = null
             if (charactersResponse.info.next != null) {
-
-                /** fetching next Page wworks with production code but fails on unit tests due to android depedency
-                 * val uri = Uri.parse(charactersResponse.info.next)
-                 * nextpage = uri.getQueryParameter("page")?.toInt()
-                 */
-
                 nextPage = getPageIntFromUrl(charactersResponse.info.next!!)
             }
             LoadResult.Page(

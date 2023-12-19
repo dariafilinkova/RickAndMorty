@@ -13,7 +13,9 @@ interface ApiService {
     @GET(CHARACTERSPATH)
     suspend fun getCharacters(
         @Query("page") page: Int,
-        @Query("name")name: String? = null
+        @Query("name") name: String? = null,
+        @Query("status") status: String? = null,
+        @Query("gender") gender: String? = null
     ): CharactersDto
 
     @GET("$CHARACTERSPATH/{character_id}")

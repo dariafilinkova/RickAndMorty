@@ -126,19 +126,26 @@ fun ModalBottomSheetWithFilters(
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = {  },
+                    onClick = {
+                        viewModel.getCharactersWithFilters(status.value, gender.value)
+                        isSheetOpen.value = false
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Blue1)
                 ) {
                     Text(
                         text = stringResource(id = R.string.filter),
-
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = {  },
+                    onClick = {
+                        status.value = ""
+                        gender.value = ""
+                        viewModel.getCharacters()
+                        isSheetOpen.value = false
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
