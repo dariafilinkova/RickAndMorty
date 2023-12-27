@@ -6,14 +6,16 @@ import androidx.navigation.compose.navigation
 
 fun NavGraphBuilder.navGraph(
     onCharacterSelected: (Int, NavBackStackEntry) -> Unit,
-    upPress: () -> Unit
+    upPress: () -> Unit,
+    onLocationSelected: (Int, NavBackStackEntry) -> Unit,
+    onEpisodeSelected: (Int, NavBackStackEntry) -> Unit,
 ) {
     navigation(
         route = CHARACTERS_GRAPH,
         startDestination = BottomBarTab.CHARACTERS.route
     ) {
-        addCharactersGraph(onCharacterSelected,upPress)
-        addEpisodesGraph()
-        addLocationsGraph()
+        addCharactersGraph(onCharacterSelected,upPress,onLocationSelected,onEpisodeSelected)
+        addEpisodesGraph(onEpisodeSelected,onCharacterSelected,upPress,onLocationSelected)
+        addLocationsGraph(onLocationSelected,upPress,onCharacterSelected,onEpisodeSelected)
     }
 }

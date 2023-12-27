@@ -15,3 +15,13 @@ val genderFilters = listOf(
     Filter(name = "Genderless"),
     Filter(name = "unknown"),
 )
+val locationsFilters = listOf(
+    Filter(name = "name"),
+    Filter(name = "type"),
+    Filter(name = "dimension")
+)
+
+val episodesFilters = listOf(
+    Filter(name = "name"),
+    Filter(name = "episode"),
+)

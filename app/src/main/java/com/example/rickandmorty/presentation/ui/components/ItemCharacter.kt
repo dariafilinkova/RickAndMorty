@@ -23,11 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.rickandmorty.domain.model.ItemCharacter
+import com.example.rickandmorty.domain.model.character.ItemCharacter
 import com.example.rickandmorty.utils.defineColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,6 +34,7 @@ import com.example.rickandmorty.utils.defineColor
 fun ItemCharacter(
     itemCharacter: ItemCharacter,
     onItemClick: () -> Unit,
+    onLocationClick: (Int) -> Unit,
 ) {
     val showShimmer = remember { mutableStateOf(true) }
 
@@ -52,7 +52,7 @@ fun ItemCharacter(
             colors = CardDefaults.cardColors(
                 containerColor = Color.White
             ),
-            onClick = {onItemClick()}
+            onClick = { onItemClick() }
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 AsyncImage(
@@ -103,17 +103,4 @@ fun ItemCharacter(
 
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun ItemCharacterPreview() {
-//    ItemCharacter(
-//        ItemCharacter(
-//            "Alien Spa",
-//            "Dead",
-//            "Male",
-//            "https://rickandmortyapi.com/api/character/avatar/361.jpeg"
-//        )
-//    )
 }

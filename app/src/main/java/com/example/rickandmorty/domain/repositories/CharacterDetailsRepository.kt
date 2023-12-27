@@ -1,7 +1,9 @@
 package com.example.rickandmorty.domain.repositories
 
-import com.example.rickandmorty.domain.model.CharacterDetails
+import com.example.rickandmorty.domain.model.character.CharacterDetails
+import com.example.rickandmorty.utils.Resource
+import kotlinx.coroutines.flow.Flow
 
 interface CharacterDetailsRepository {
-    suspend fun getCharacterDetails(id: Int): Result<CharacterDetails>
+    fun getCharacterDetails(id: Int): Flow<Resource<CharacterDetails>>
 }

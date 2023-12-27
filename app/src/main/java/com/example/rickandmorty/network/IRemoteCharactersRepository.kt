@@ -1,7 +1,10 @@
 package com.example.rickandmorty.network
 
-import com.example.rickandmorty.domain.model.CharacterDetailsDto
-import com.example.rickandmorty.domain.model.CharactersDto
+import com.example.rickandmorty.domain.model.character.CharacterDetails
+import com.example.rickandmorty.domain.model.character.CharacterDetailsDto
+import com.example.rickandmorty.domain.model.character.CharactersDto
+import com.example.rickandmorty.utils.Resource
+import kotlinx.coroutines.flow.Flow
 
 interface IRemoteCharactersRepository {
     suspend fun getCharacters(
@@ -11,9 +14,13 @@ interface IRemoteCharactersRepository {
         gender: String? = null,
     ): CharactersDto
 
-    suspend fun getCharacterDetails(
+    fun getCharacterDetails(
         characterId: Int
-    ): CharacterDetailsDto
+    ): Flow<Resource<CharacterDetails>>
+
+    suspend fun getCharactersForDetail(
+        id: String
+    ): List<CharacterDetailsDto>
 
 
 }

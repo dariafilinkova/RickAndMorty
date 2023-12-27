@@ -20,6 +20,8 @@ import androidx.navigation.NavGraph
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rickandmorty.navigation.BottomBarTab
 import com.example.rickandmorty.navigation.CharactersDestinations.CHARACTER_ITEM_ROUTE
+import com.example.rickandmorty.navigation.EpisodesDestinations.EPISODE_ITEM_ROUTE
+import com.example.rickandmorty.navigation.LocationsDestinations.LOCATION_ITEM_ROUTE
 
 
 @Composable
@@ -92,6 +94,16 @@ class AppState(
     fun navigateToCharacterDetails(characterId: Int, from: NavBackStackEntry) {
         if (from.lifecycleIsResumed()) {
             navController.navigate("${CHARACTER_ITEM_ROUTE}/$characterId")
+        }
+    }
+    fun navigateToLocationDetails(locationId: Int, from: NavBackStackEntry) {
+        if (from.lifecycleIsResumed()) {
+            navController.navigate("${LOCATION_ITEM_ROUTE}/$locationId")
+        }
+    }
+    fun navigateToEpisodeDetails(episodeId: Int, from: NavBackStackEntry) {
+        if (from.lifecycleIsResumed()) {
+            navController.navigate("${EPISODE_ITEM_ROUTE}/$episodeId")
         }
     }
 }

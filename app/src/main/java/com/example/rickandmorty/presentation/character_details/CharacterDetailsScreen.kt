@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -51,27 +51,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.palette.graphics.Palette
 import com.example.rickandmorty.R
-import com.example.rickandmorty.domain.model.CharacterDetails
-import com.example.rickandmorty.presentation.episodes.episodes.EpisodesState
+import com.example.rickandmorty.domain.model.episode.Episode
 import com.example.rickandmorty.presentation.ui.components.CharacterDetailImage
 import com.example.rickandmorty.presentation.ui.components.DropDownSection
+import com.example.rickandmorty.presentation.ui.components.ErrorScreen
 import com.example.rickandmorty.utils.defineColor
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.math.min
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun CharacterDetailsScreen(
     characterId: Int,
     upPress: () -> Unit,
+    onLocationSelected: (locationId: Int) -> Unit,
+    onEpisodeSelected: (Int) -> Unit,
     viewModel: CharacterDetailsViewModel = hiltViewModel(),
 ) {
     val detailsState = viewModel.detailsState.value
+    Log.d("detailState", "$detailsState")
+    val state = viewModel.characterDetailState.collectAsState().value
+
     val systemInDarkMode = isSystemInDarkTheme()
     val lazyListState = rememberLazyListState()
     val scrollOffset = min(
@@ -90,7 +93,6 @@ fun CharacterDetailsScreen(
         ), label = "characterImage"
 
     )
-    val systemUiController = rememberSystemUiController()
     var colorPalette by remember {
         mutableStateOf<Palette?>(null)
     }
@@ -118,10 +120,13 @@ fun CharacterDetailsScreen(
     val isClickedShowLocation = remember {
         mutableStateOf(false)
     }
-    val episodesList =
-        viewModel.episodesList.collectAsState(initial = EpisodesState(isLoading = true)).value
-    if (detailsState.isLoading) {
 
+    if (state.isError) {
+        ErrorScreen (onRetryClick = {
+            viewModel.onClickRetry()
+        })
+    }
+    if (state.isLoading) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
@@ -141,14 +146,12 @@ fun CharacterDetailsScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        detailsState.data?.let {
+        state.data?.let {
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
-                // .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-
-                ) {
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -224,15 +227,21 @@ fun CharacterDetailsScreen(
                     name = stringResource(id = R.string.episodes),
                     function = {
                         EpisodesForCharacterDetail(
-                            lazyListState,
-                            episodesList = episodesList
+                            episodesList = state.episodes,
+                            onEpisodeSelected
                         )
                     }
                 )
                 DropDownSection(
                     isClickedSection = isClickedShowLocation,
                     name = stringResource(id = R.string.location),
-                    function = { LocationCharacterDetail(item = it) }
+                    function = {
+                        LocationCharacterDetail(
+                            location = state.data.location.name,
+                            locationId = it.location.url.split("/")[5].toInt(),
+                            onLocationSelected = onLocationSelected
+                        )
+                    }
                 )
             }
         }
@@ -256,8 +265,8 @@ fun CharacterDetailsScreen(
 
 @Composable
 fun EpisodesForCharacterDetail(
-    lazyListState: LazyListState,
-    episodesList: EpisodesState
+    episodesList: List<Episode>,
+    onEpisodeSelected: (Int) -> Unit
 ) {
     Log.d("episodesList", "$episodesList")
     Card(
@@ -266,17 +275,21 @@ fun EpisodesForCharacterDetail(
         modifier = Modifier
             .padding(horizontal = 8.dp)
             .padding(start = 8.dp, end = 8.dp)
+
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState()),
         ) {
-            episodesList.data.forEach {
+            episodesList.forEach {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .clickable {
+                            onEpisodeSelected(it.id)
+                        }
                 ) {
 
                     Icon(
@@ -291,45 +304,30 @@ fun EpisodesForCharacterDetail(
                 }
             }
         }
-//        LazyColumn(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .background(Color.Transparent),
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            state = lazyListState
-//        ) {
-//            items(episodesList.data) { episode ->
-//                Row(
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(horizontal = 8.dp, vertical = 4.dp)
-//                ) {
-//
-//                    Icon(
-//                        imageVector = Icons.Default.Face,
-//                        contentDescription = null,
-//                        modifier = Modifier.size(32.dp)
-//                    )
-//                    Column {
-//                        Text(text = episode.episode)
-//                        Text(text = episode.name, fontWeight = FontWeight.Bold)
-//                    }
-//                }
-//            }
-//        }
     }
 }
 
 @Composable
-fun LocationCharacterDetail(item: CharacterDetails) {
+fun LocationCharacterDetail(
+    location: String,
+    locationId: Int,
+    onLocationSelected: (locationId: Int) -> Unit
+) {
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
         shape = CutCornerShape(12.dp),
         modifier = Modifier
             .padding(horizontal = 8.dp)
             .padding(start = 8.dp, end = 8.dp)
+            .fillMaxWidth()
+            .clickable {
+                onLocationSelected(locationId)
+            }
     ) {
-        Text(text = item.location)
+        Text(
+            text = location,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(10.dp)
+        )
     }
 }

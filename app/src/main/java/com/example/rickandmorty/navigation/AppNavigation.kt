@@ -45,6 +45,8 @@ fun AppNavigation() {
             navGraph(
                 onCharacterSelected = appState::navigateToCharacterDetails,
                 upPress = appState::upPress,
+                onLocationSelected = appState::navigateToLocationDetails,
+                onEpisodeSelected = appState::navigateToEpisodeDetails
             )
         }
     }

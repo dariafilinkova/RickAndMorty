@@ -8,4 +8,18 @@
     <string name="search">Search</string>
     <string name="episodes">Episodes</string>
     <string name="location">Location</string>
+    <string name="type">type :</string>
+    <string name="dimension">dimension :</string>
+    <string name="name">Name</string>
+    <string name="type_location">Type</string>
+    <string name="dimension_location">Dimension</string>
+    <string name="residents">Residents</string>
+    <string name="select_filter">Select filter</string>
+    <string name="episode">episode :</string>
+    <string name="name_episode">name :</string>
+    <string name="air_date">air date :</string>
+    <string name="locations">Locations</string>
+    <string name="try_again">Try again</string>
+    <string name="no_internet">No internet connection</string>
+
 </resources>

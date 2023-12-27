@@ -20,10 +20,14 @@ object CharactersDestinations {
 
 fun NavGraphBuilder.addCharactersGraph(
     onCharacterSelected: (Int, NavBackStackEntry) -> Unit,
-    upPress: () -> Unit
+    upPress: () -> Unit,
+    onLocationSelected: (Int, NavBackStackEntry) -> Unit,
+    onEpisodeSelected: (Int, NavBackStackEntry) -> Unit,
 ) {
-    composable(BottomBarTab.CHARACTERS.route) {from->
-        CharactersScreen(onItemClick = { id -> onCharacterSelected(id, from) })
+    composable(BottomBarTab.CHARACTERS.route) { from ->
+        CharactersScreen(
+            onItemClick = { id -> onCharacterSelected(id, from) },
+            onLocationClick = { id -> onLocationSelected(id, from) })
     }
     composable(
         route = "$CHARACTER_ITEM_ROUTE/{${CHARACTER_ITEM_ID_KEY}}",
@@ -31,7 +35,10 @@ fun NavGraphBuilder.addCharactersGraph(
     ) { backStackEntry ->
         val arguments = requireNotNull(backStackEntry.arguments)
         val characterId = arguments.getInt(CHARACTER_ITEM_ID_KEY)
-        CharacterDetailsScreen(characterId, upPress)
+        CharacterDetailsScreen(
+            characterId,
+            upPress,
+            onLocationSelected = { id -> onLocationSelected(id, backStackEntry) },
+            onEpisodeSelected = { id -> onEpisodeSelected(id, backStackEntry) })
     }
-
 }

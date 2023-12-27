@@ -1,20 +1,18 @@
 package com.example.rickandmorty.presentation.character_details
 
-import android.util.Log
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rickandmorty.domain.usecases.GetCharacterDetailsUseCase
-import com.example.rickandmorty.domain.usecases.GetEpisodesUseCase
-import com.example.rickandmorty.presentation.episodes.episodes.EpisodesState
+import com.example.rickandmorty.domain.model.episode.Episode
+import com.example.rickandmorty.domain.usecases.character.GetCharacterDetailsUseCase
+import com.example.rickandmorty.domain.usecases.episode.GetEpisodesUseCase
+import com.example.rickandmorty.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,63 +20,76 @@ import javax.inject.Inject
 class CharacterDetailsViewModel @Inject constructor(
     private val getCharacterDetailsUseCase: GetCharacterDetailsUseCase,
     private val savedStateHandle: SavedStateHandle,
-    private val getEpisodesUseCase: GetEpisodesUseCase,
+    private val getEpisodesUseCase: GetEpisodesUseCase
 ) : ViewModel() {
+
     private val _detailsState = mutableStateOf(CharacterDetailsState())
     val detailsState = _detailsState
-    private val characterId = mutableIntStateOf(0)
-    private val episodeIdFromList: MutableStateFlow<List<Int>> = MutableStateFlow(emptyList())
+    private val _characterDetailState =
+        MutableStateFlow<CharacterDetailsState>(CharacterDetailsState())
+    val characterDetailState: StateFlow<CharacterDetailsState> get() = _characterDetailState
 
     init {
-        val id = savedStateHandle.get<Int>("characterId")
-        Log.d("characterId", "$id")
-        _detailsState.value = CharacterDetailsState(isLoading = true)
-        if (id != null) {
-            characterId.value = id
-            getCharacterById()
+        viewModelScope.launch(Dispatchers.IO) {
+            val characterId = savedStateHandle.get<Int>("characterId")
+            characterId?.let {
+                getCharacter(characterId = it)
+            }
         }
     }
 
-    @ExperimentalCoroutinesApi
-    val episodesList = episodeIdFromList.filter { list ->
-        Log.d("episodes44", "$list")
-        list.isEmpty().not()
-    }.flatMapLatest { idFromList ->
-        val id = idFromList.joinToString()
-        flow {
-            getEpisodesUseCase(id).fold(
-                onSuccess = {
-                    Log.d("episodes", "$it")
-                    emit(
+    fun onClickRetry() {
+        val characterId = savedStateHandle.get<Int>("characterId")
+        _characterDetailState.update { it.copy(isError = false) }
+        characterId?.let {
+            getCharacter(characterId = it)
+        }
+    }
 
-                        EpisodesState(
-                            data = it
-                        )
-                    )
-                },
-                onFailure = {
-                    Log.d("myflow", it.localizedMessage)
-                    emit(
-                        EpisodesState(
-                            errorMessage = it.localizedMessage ?: "Something Went Wrong"
-                        )
-                    )
+    private fun getCharacter(characterId: Int) {
+        viewModelScope.launch {
+            getCharacterDetailsUseCase(id = characterId)
+                .collect {
+                    when (it) {
+                        is Resource.Loading -> {
+                            _characterDetailState.update { it.copy(isLoading = true) }
+                        }
+
+                        is Resource.Success -> {
+                            _characterDetailState.update { state ->
+                                state.copy(
+                                    isLoading = false,
+                                    data = it.data
+                                )
+                            }
+                            if (it.data != null) getEpisode(it.data.episode)
+                        }
+
+                        is Resource.Error -> {
+                            _characterDetailState.update {
+                                it.copy(
+                                    isError = true,
+                                    isLoading = false
+                                )
+                            }
+                        }
+                    }
                 }
-            )
         }
     }
 
-    private fun getCharacterById() = viewModelScope.launch {
+    private fun getEpisode(episodes: List<String>) {
+        _characterDetailState.update { it.copy(isLoading = true) }
 
-        val result = getCharacterDetailsUseCase(characterId.intValue)
+        viewModelScope.launch(Dispatchers.IO) {
+            val list: MutableList<Episode> = mutableListOf()
 
-        result.onSuccess { details ->
-            _detailsState.value = CharacterDetailsState(data = details)
-            episodeIdFromList.value = details.episode
-        }
-        result.onFailure {
-                error ->
-            _detailsState.value = CharacterDetailsState(errorMessage = error.message)
+            episodes.forEach { episodeUrl ->
+                val episodeId = (episodeUrl.split("/"))[5]
+                val episode = getEpisodesUseCase(episodeId = episodeId.toInt())
+                list.add(episode)
+            }
+            _characterDetailState.update { it.copy(isLoading = false, episodes = list) }
         }
     }
 }
